@@ -4,7 +4,8 @@
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello, World!");
+            //Bitmap B = AmbientOcclusion.Generate("File.png", true);
+            //B.Save("Output.png");
         }
     }
 }

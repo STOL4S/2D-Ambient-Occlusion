@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 
-namespace AO
+namespace AmbientOcclusion
 {
     public static class AmbientOcclusion
     {

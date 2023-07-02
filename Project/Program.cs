@@ -4,8 +4,8 @@
     {
         static void Main(string[] args)
         {
-            //Bitmap B = AmbientOcclusion.Generate("File.png", true);
-            //B.Save("Output.png");
+            Bitmap Input = (Bitmap)Image.FromFile("obj.png");
+            Bitmap B = AmbientOcclusion.GenerateComposite(Input, true);
         }
     }
 }

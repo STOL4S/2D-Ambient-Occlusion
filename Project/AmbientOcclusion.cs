@@ -11,6 +11,8 @@ namespace AmbientOcclusion
 {
     public static class AmbientOcclusion
     {
+        public static float STRENGTH = 1.5f;
+
         public static Bitmap Generate(Bitmap _Object, bool _SelfShadow)
         {
             Bitmap AO = new Bitmap(_Object.Width, _Object.Height);
@@ -27,6 +29,8 @@ namespace AmbientOcclusion
                 for (int y = 0; y < _Object.Height; y++)
                 {
                     int C = (int)(225 - (Delta * y));
+                    if (C < 0)
+                        C = 0;
                     G.DrawLine(new Pen(Color.FromArgb(C, C, C)), 0, y, _Object.Width, y);
                 }
             }
@@ -110,7 +114,7 @@ namespace AmbientOcclusion
                         int O = 255;
                         if (Occlusion != 1)
                         {
-                            O = (int)(Occlusion * 132) + (int)(PositionBuffer.GetPixel(x, y).R / 2.0f);
+                            O = (int)(Occlusion * 132) + (int)(PositionBuffer.GetPixel(x, y).R / STRENGTH);
                         }
 
                         if (O > 255)
@@ -128,6 +132,62 @@ namespace AmbientOcclusion
 #endif
 
             return AO;
+        }
+
+        public static Bitmap GenerateComposite(Bitmap _Object, bool _SelfShadow)
+        {
+            Bitmap AOBuffer = Generate(_Object, _SelfShadow);
+            Bitmap OBJBuffer = new Bitmap(AOBuffer.Width, AOBuffer.Height);
+            Bitmap Output = new Bitmap(AOBuffer.Width, AOBuffer.Height);
+
+            using (Graphics G = Graphics.FromImage(OBJBuffer))
+            {
+                G.Clear(Color.White);
+                G.DrawImage(_Object, new Point(0, 0));
+            }
+
+            for (int y = 0; y < Output.Height; y++)
+            {
+                for (int x = 0; x < Output.Width; x++)
+                {
+                    Color BP = OBJBuffer.GetPixel(x, y);
+                    float AO = AOBuffer.GetPixel(x, y).R / 255.0f;
+
+                    int FinalR = (int)(BP.R * AO);
+                    int FinalG = (int)(BP.G * AO);
+                    int FinalB = (int)(BP.B * AO);
+
+                    FinalR = CorrectRGBValue(FinalR);
+                    FinalG = CorrectRGBValue(FinalG);
+                    FinalB = CorrectRGBValue(FinalB);
+
+                    Color NC = Color.FromArgb(FinalR, FinalG, FinalB);
+
+                    Output.SetPixel(x, y, NC);
+                }
+            }
+
+#if DEBUG
+            Output.Save("GeneratedComposite.png");
+#endif
+
+            return Output;
+        }
+
+        private static int CorrectRGBValue(int _Input)
+        {
+            if (_Input < 0)
+            {
+                return 0;
+            }
+            else if (_Input > 255)
+            {
+                return 255;
+            }
+            else
+            {
+                return _Input;
+            }
         }
     }
 }

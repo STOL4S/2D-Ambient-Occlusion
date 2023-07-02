@@ -15,6 +15,10 @@ some adjustment may have to be made to get it to work properly.
 ### No Shadow&emsp;&nbsp;Self-Shadow
 ![dandellionorig](https://github.com/STOL4S/2D-Ambient-Occlusion/assets/138336394/7ac41412-bf5d-412e-9b01-c737e4a277bf)
 ![Dandellion_SelfShadow128](https://github.com/STOL4S/2D-Ambient-Occlusion/assets/138336394/cde10a34-afce-4982-b432-5ee2bbb3ab83)
+### Input Image&emsp;&nbsp;Shadow Map
+![obj](https://github.com/STOL4S/2D-Ambient-Occlusion/assets/138336394/86f63bbc-71ca-4dac-a6f7-abea4c417657)
+![GeneratedOcclusion](https://github.com/STOL4S/2D-Ambient-Occlusion/assets/138336394/071ae001-85f7-4fda-ab80-3cf0a30f7c16)
+
 
 When using this shader, self-shadowing can be enabled/disabled when calling the function to generate the ambient occlusion.
 Regular shadowing tends to give darker shadows under the object itself, while leaving most of the shading of the object itself

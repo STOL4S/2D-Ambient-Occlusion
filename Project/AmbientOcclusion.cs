@@ -11,7 +11,7 @@ namespace AmbientOcclusion
 {
     public static class AmbientOcclusion
     {
-        public static float STRENGTH = 1.5f;
+        public static float STRENGTH = 2.0f;
 
         public static Bitmap Generate(Bitmap _Object, bool _SelfShadow)
         {
@@ -103,7 +103,7 @@ namespace AmbientOcclusion
                                 float Delta = (Current.R - AvgColor.X) 
                                     + (Current.G - AvgColor.Y) + (Current.B - AvgColor.Z);
 
-                                if (Delta >= 64)
+                                if (Delta >= 4)
                                 {
                                     Occlusion -= (Delta / 5120.0f);
                                 }
@@ -114,7 +114,7 @@ namespace AmbientOcclusion
                         int O = 255;
                         if (Occlusion != 1)
                         {
-                            O = (int)(Occlusion * 132) + (int)(PositionBuffer.GetPixel(x, y).R / STRENGTH);
+                            O = (int)(Occlusion * 156) + (int)(PositionBuffer.GetPixel(x, y).R / STRENGTH);
                         }
 
                         if (O > 255)

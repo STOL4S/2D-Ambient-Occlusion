@@ -18,7 +18,8 @@ some adjustment may have to be made to get it to work properly.
 ### Input Image&emsp;&nbsp;Shadow Map
 ![obj](https://github.com/STOL4S/2D-Ambient-Occlusion/assets/138336394/86f63bbc-71ca-4dac-a6f7-abea4c417657)
 ![GeneratedOcclusion](https://github.com/STOL4S/2D-Ambient-Occlusion/assets/138336394/071ae001-85f7-4fda-ab80-3cf0a30f7c16)
-
+### Shadow Between Objects
+![AOON](https://github.com/STOL4S/2D-Ambient-Occlusion/assets/138336394/7610b6d9-6239-439b-9d07-0fd788ccc82e)
 
 When using this shader, self-shadowing can be enabled/disabled when calling the function to generate the ambient occlusion.
 Regular shadowing tends to give darker shadows under the object itself, while leaving most of the shading of the object itself

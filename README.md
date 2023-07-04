@@ -21,6 +21,7 @@ alone. Self-shadowing gives a lighter shadow on the ground, but also shadow deta
 Currently, a back buffer bitmap and an array of all the sprites to be drawn are passed to the ambient occlusion function.
 A position buffer is then calculated by ordering the sprites in drawing order and setting sprites furthest back to darker
 colors, while sprites in the front are lighter colors. Here is an example:
+
 ![Pos](https://github.com/STOL4S/2D-Ambient-Occlusion/assets/138336394/4821d66d-a552-41cf-9440-45eaa45e2fed)
 
 From there, the rest of the shader is very similar to the 3D version of this shader. Check surrounding pixels, get the distance

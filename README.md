@@ -6,20 +6,12 @@ or a top-down view. Other angles or non-pixel art can be used, but
 some adjustment may have to be made to get it to work properly.
 
 ## Examples
-### No Shadow
-![NoShadow](https://github.com/STOL4S/2D-Ambient-Occlusion/assets/138336394/9468ec4b-73bf-4b2a-9f07-495e4c9d8093)
-### Shadow
-![Shadow](https://github.com/STOL4S/2D-Ambient-Occlusion/assets/138336394/9b7c6665-763d-452b-99ad-6d4f42fdf6ff)
-### Self-Shadow
-![SelfShadow](https://github.com/STOL4S/2D-Ambient-Occlusion/assets/138336394/d055e811-092a-43b4-b148-f8d767ac9599)
-### No Shadow&emsp;&nbsp;Self-Shadow
-![dandellionorig](https://github.com/STOL4S/2D-Ambient-Occlusion/assets/138336394/7ac41412-bf5d-412e-9b01-c737e4a277bf)
-![Dandellion_SelfShadow128](https://github.com/STOL4S/2D-Ambient-Occlusion/assets/138336394/cde10a34-afce-4982-b432-5ee2bbb3ab83)
-### Input Image&emsp;&nbsp;Shadow Map
-![obj](https://github.com/STOL4S/2D-Ambient-Occlusion/assets/138336394/86f63bbc-71ca-4dac-a6f7-abea4c417657)
-![GeneratedOcclusion](https://github.com/STOL4S/2D-Ambient-Occlusion/assets/138336394/071ae001-85f7-4fda-ab80-3cf0a30f7c16)
-### Shadow Between Objects
-![AOON](https://github.com/STOL4S/2D-Ambient-Occlusion/assets/138336394/7610b6d9-6239-439b-9d07-0fd788ccc82e)
+### No Shading
+![Buffer](https://github.com/STOL4S/2D-Ambient-Occlusion/assets/138336394/8a84c6a5-1337-4c0f-9e5c-1478543f6e12)
+### Ambient Occlusion
+![GeneratedComposite](https://github.com/STOL4S/2D-Ambient-Occlusion/assets/138336394/3a3f8ce4-dd24-414b-944c-b6fdca547851)
+### Generated Occlusion Map
+![AO](https://github.com/STOL4S/2D-Ambient-Occlusion/assets/138336394/e6425ea4-3d30-4c25-bf85-ffdc8d11481f)
 
 When using this shader, self-shadowing can be enabled/disabled when calling the function to generate the ambient occlusion.
 Regular shadowing tends to give darker shadows under the object itself, while leaving most of the shading of the object itself

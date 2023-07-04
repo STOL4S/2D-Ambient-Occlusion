@@ -22,7 +22,7 @@ namespace AmbientOcclusion
             using (Graphics G = Graphics.FromImage(Pos))
             {
                 //BLACK WILL ALWAYS BE BACKGROUND
-                G.Clear(Color.Black);
+                G.Clear(Color.FromArgb(255, 0, 0, 0));
 
                 long RGB = 0xFF000000;
                 Color CC = Color.FromArgb((int)RGB);
@@ -89,17 +89,6 @@ namespace AmbientOcclusion
                             //BACKGROUND PIXEL
                             if (PBuffer == Color.FromArgb(255, 0, 0, 0))
                             {
-                                //for (int j = -1; j <= 0; j++)
-                                //{
-                                //    for (int k = -1; k <= 1; k++)
-                                //    {
-                                //        if (Pos.GetPixel(SpriteArray[i].Position.X + x + k,
-                                //            SpriteArray[i].Position.Y + y + j).R > 0)
-                                //        {
-                                //            Occlusion -= (1.0f / 9.0f);
-                                //        }
-                                //    }
-                                //}
                             }
                             //PIXEL IS PART OF AN OBJECT
                             //SCAN AROUND THIS PIXEL
@@ -136,7 +125,7 @@ namespace AmbientOcclusion
                             int O = 255;
                             if (Occlusion != 1.0f)
                             {
-                                O = 255 - (int)(Occlusion * 1.5f);
+                                O = 255 - (int)(Occlusion * STRENGTH);
                             }
 
                             if (O > 255)
@@ -149,11 +138,118 @@ namespace AmbientOcclusion
                         }
                     }
                 }
+
+                //LAST, SCAN ENTIRE POSITION MAP FOR NON-OCCUPIED PIXELS
+                //CHECK TO SEE IF THEY REQUIRE SHADING
+                for (int y = 1; y < Pos.Height - 1; y++)
+                {
+                    for (int x = 1; x < Pos.Width - 1; x++) 
+                    {
+                        //IF YOU ARE AN ALPHA PIXEL (BACKGROUND)
+                        //CHECK SURROUNDING PIXELS IN THE FOLLOWING PATTERN:
+                        //*** SCAN THIS ROW
+                        //*&* SCAN THE LEFT AND RIGHT PIXEL HERE
+                        //XXX DO NOT SCAN THIS ROW!
+                        //ONLY CHECK NEXT TO THE PIXEL AND ABOVE IT TO PREVENT
+                        //AMBIENT OCCLUSION FROM BEING GENERATED ON TOP OF SURFACES
+
+                        float Occlusion = 1.0f;
+                        if (Pos.GetPixel(x, y).R == 0)
+                        {
+                            for (int j = -1; j <= 0; j++)
+                            {
+                                for (int i = -1; i <= 1; i++)
+                                {
+                                    if (Pos.GetPixel(x + i, y + j).R > 0)
+                                    {
+                                        Occlusion -= (1.0f / 9.0f);
+                                    }
+                                }
+                            }
+
+                            //CHECK 2 PIXELS ABOVE TARGET PIXEL
+                            //ONLY GIVE HALF OCCLUSION FOR THIS
+                            for (int j = -1; j <= 1; j++)
+                            {
+                                if (y >= 2)
+                                {
+                                    if (Pos.GetPixel(x + j, y - 2).R > 0)
+                                    {
+                                        Occlusion -= (1.0f / 21.0f);
+                                    }
+                                }
+                            }
+                        }
+
+                        int O = 255;
+                        if (Occlusion != 1)
+                        {
+                            O = (int)(Occlusion * 255);
+
+                            if (O > 255)
+                                O = 255;
+                            if (O < 0)
+                                O = 0;
+
+                            AO.SetPixel(x, y, Color.FromArgb(O, O, O));
+                        }
+                    }
+                }
             }
 
             AO.Save("AO.png");
             Pos.Save("Pos.png");
-            return Pos;
+
+            return AO;
+        }
+
+        public static Bitmap GenerateComposite(Bitmap BackBuffer, Sprite[] SpriteArray)
+        {
+            Bitmap AOBuffer = Generate(BackBuffer, SpriteArray);
+            Bitmap Output = new Bitmap(BackBuffer.Width, BackBuffer.Height);
+
+            for (int y = 0; y < Output.Height; y++)
+            {
+                for (int x = 0; x < Output.Width; x++)
+                {
+                    Color BP = BackBuffer.GetPixel(x, y);
+                    float AO = AOBuffer.GetPixel(x, y).R / 255.0f;
+
+                    int FinalR = (int)(BP.R * AO);
+                    int FinalG = (int)(BP.G * AO);
+                    int FinalB = (int)(BP.B * AO);
+
+                    FinalR = CorrectRGBValue(FinalR);
+                    FinalG = CorrectRGBValue(FinalG);
+                    FinalB = CorrectRGBValue(FinalB);
+
+                    Color NC = Color.FromArgb(FinalR, FinalG, FinalB);
+
+                    Output.SetPixel(x, y, NC);
+                }
+            }
+
+#if DEBUG
+            Output.Save("GeneratedComposite.png");
+#endif
+
+            return Output;
+        }
+
+        private static int CorrectRGBValue(int _Input)
+        {
+            if (_Input < 0)
+            {
+                return 0;
+            }
+            else if (_Input > 255)
+            {
+                return 255;
+            }
+            else
+            {
+                return _Input;
+            }
         }
     }
 }

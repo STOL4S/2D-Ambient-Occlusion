@@ -24,12 +24,12 @@ namespace AmbientOcclusion
                 //BLACK WILL ALWAYS BE BACKGROUND
                 G.Clear(Color.FromArgb(255, 0, 0, 0));
 
-                long RGB = 0xFF000000;
+                long RGB = 0xFF040000;
                 Color CC = Color.FromArgb((int)RGB);
 
                 for (int i = 0; i < SpriteArray.Length; i++) 
                 {
-                    RGB += 0x00010000;
+                    RGB += 0x00080000;
                     CC = Color.FromArgb((int)RGB);
 
                     for (int y = 0; y < SpriteArray[i].Texture.Height; y++)
@@ -94,7 +94,7 @@ namespace AmbientOcclusion
                             //SCAN AROUND THIS PIXEL
                             else
                             {
-                                //ASSUME YOU ARE A DARKER PIXEL
+                                //ASSUME YOU ARE A DARKER PIXEL ON THE POSITION BUFFER
                                 //YOU ARE LOOKING FOR LIGHTER PIXELS
                                 //TO OCCLUDE YOU
                                 for (int j = -2; j <= 2; j++)
@@ -117,6 +117,11 @@ namespace AmbientOcclusion
                                         }
                                     }
                                 }
+
+
+
+
+
                             }
 
                             if (Occlusion <= 0.0f)
@@ -181,6 +186,21 @@ namespace AmbientOcclusion
                             }
                         }
 
+
+                        //YOU ARE ANY PIXEL IN THE POSITION BUFFER THAT IS OCCUPIED
+                        //CHECK DIRECTLY BELOW YOURSELF FOR OCCLUSION
+                        if (Pos.GetPixel(x, y).R > 0)
+                        {
+                            for (int j = 1; j < 3; j++)
+                            {
+                                Color PPBuffer = Pos.GetPixel(x, y + j);
+                                if (PPBuffer == Color.FromArgb(255, 0, 0, 0))
+                                {
+                                    Occlusion -= (1.0f / 9.0f) * 1;
+                                }
+                            }
+                        }
+
                         int O = 255;
                         if (Occlusion != 1)
                         {
@@ -190,6 +210,11 @@ namespace AmbientOcclusion
                                 O = 255;
                             if (O < 0)
                                 O = 0;
+
+                            if (AO.GetPixel(x, y).R < O)
+                            {
+                                O = O - (int)(AO.GetPixel(x, y).R / 1.5f);
+                            }
 
                             AO.SetPixel(x, y, Color.FromArgb(O, O, O));
                         }

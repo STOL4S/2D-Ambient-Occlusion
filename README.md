@@ -18,12 +18,11 @@ Regular shadowing tends to give darker shadows under the object itself, while le
 alone. Self-shadowing gives a lighter shadow on the ground, but also shadow details in areas where edges are detected in the image.
 
 ## How Does it Work?
-Looking at the self-shadow image, the edge facing closest to the viewpoint is shaded slightly darker on the side of the edge that appears
-to be facing away from the light source. Due to the algorithm being able to calculate the average deviation in pixel color between a single pixel
-and it's surrounding neighbors, it can then calculate that the difference between any given pixel is greater than the average deviation and determine
-that this pixel is likely a part of an edge. It is then determined if this edge is an edge facing outwards or inwards by using surrounding color data
-to make guesses at the current position of the pixel in world space versus the neighboring pixels. The Z-axis or vertical axis in this case is always a
-pre-generated gradient which has a near value of 255 (white) and a far value of black (0). The values of the calculated shadows are then multiplied by the
-pre-generated gradient to give the effect that shadows are appearing on the ground rather than just behind or around the object. The generated shadow map
-is than applied to the image by multiplying the original color values of the passed image by the ambient occlusion factor. Prior to doing this, the generated
-shadow map can be blurred to provide a softer shadow, but if done on too low of a resolution it can appear washed out.
+Currently, a back buffer bitmap and an array of all the sprites to be drawn are passed to the ambient occlusion function.
+A position buffer is then calculated by ordering the sprites in drawing order and setting sprites furthest back to darker
+colors, while sprites in the front are lighter colors. Here is an example:
+![Pos](https://github.com/STOL4S/2D-Ambient-Occlusion/assets/138336394/4821d66d-a552-41cf-9440-45eaa45e2fed)
+
+From there, the rest of the shader is very similar to the 3D version of this shader. Check surrounding pixels, get the distance
+between you and the neighboring object, and draw shadow based off occlusion amount. After checking for all shadows between sprites,
+another pass is done very quickly to fill in any shadows between the sprites and the background scene.

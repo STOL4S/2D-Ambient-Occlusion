@@ -32,7 +32,7 @@ namespace AmbientOcclusion
         }
 
         public void Draw(Graphics G)
-        {
+    {
             G.DrawImage(this.Texture, this.Position);
         }
     }

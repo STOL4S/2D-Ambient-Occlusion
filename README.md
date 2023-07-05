@@ -9,9 +9,9 @@ some adjustment may have to be made to get it to work properly.
 ### No Shading
 ![Buffer](https://github.com/STOL4S/2D-Ambient-Occlusion/assets/138336394/8a84c6a5-1337-4c0f-9e5c-1478543f6e12)
 ### Ambient Occlusion
-![GeneratedComposite](https://github.com/STOL4S/2D-Ambient-Occlusion/assets/138336394/e0b49d0c-f49d-497f-bffd-157c99437447)
+![GeneratedComposite](https://github.com/STOL4S/2D-Ambient-Occlusion/assets/138336394/f371e30a-ac95-4666-a679-0915581742eb)
 ### Generated Occlusion Map
-![AO](https://github.com/STOL4S/2D-Ambient-Occlusion/assets/138336394/15d2f804-8836-4157-89f3-845c1e3e494b)
+![AO](https://github.com/STOL4S/2D-Ambient-Occlusion/assets/138336394/5a83ea8b-66b4-4ee5-9b5c-a41c489fc06b)
 
 When using this shader, self-shadowing can be enabled/disabled when calling the function to generate the ambient occlusion.
 Regular shadowing tends to give darker shadows under the object itself, while leaving most of the shading of the object itself

@@ -165,7 +165,7 @@ namespace AmbientOcclusion
                             {
                                 for (int i = -1; i <= 1; i++)
                                 {
-                                    if (Pos.GetPixel(x + i, y + j).R > 0)
+                                    if (Pos.GetPixel(x, y + j).R > 0)
                                     {
                                         Occlusion -= (1.0f / 9.0f);
                                     }

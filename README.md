@@ -9,7 +9,7 @@ some adjustment may have to be made to get it to work properly.
 ### No Shading
 ![Buffer](https://github.com/STOL4S/2D-Ambient-Occlusion/assets/138336394/8a84c6a5-1337-4c0f-9e5c-1478543f6e12)
 ### Ambient Occlusion
-![GeneratedComposite](https://github.com/STOL4S/2D-Ambient-Occlusion/assets/138336394/3a3f8ce4-dd24-414b-944c-b6fdca547851)
+![GeneratedComposite](https://github.com/STOL4S/2D-Ambient-Occlusion/assets/138336394/e0b49d0c-f49d-497f-bffd-157c99437447)
 ### Generated Occlusion Map
 ![AO](https://github.com/STOL4S/2D-Ambient-Occlusion/assets/138336394/15d2f804-8836-4157-89f3-845c1e3e494b)
 

@@ -65,7 +65,7 @@ namespace AmbientOcclusion
 
                         //128 COLORS OVER THE COURSE OF 32 PIXELS
                         //128 IS HALF BRIGHTNESS.
-                        int Delta = (int)(64 / 32);
+                        int Delta = (int)(32 / SpriteArray[i].Texture.Height);
 
                         for (int y = 0; y < SpriteArray[i].Texture.Height; y++)
                         {
@@ -117,11 +117,6 @@ namespace AmbientOcclusion
                                         }
                                     }
                                 }
-
-
-
-
-
                             }
 
                             if (Occlusion <= 0.0f)
@@ -165,6 +160,8 @@ namespace AmbientOcclusion
                             {
                                 for (int i = -1; i <= 1; i++)
                                 {
+                                    //GET OBJECT POSITION RELATIVE TO GROUND
+                                    //IF THE PIXEL IS OCCUPIED
                                     if (Pos.GetPixel(x, y + j).R > 0)
                                     {
                                         Occlusion -= (1.0f / 9.0f);
@@ -180,7 +177,20 @@ namespace AmbientOcclusion
                                 {
                                     if (Pos.GetPixel(x + j, y - 2).R > 0)
                                     {
-                                        Occlusion -= (1.0f / 21.0f);
+                                        Occlusion -= (1.0f / 14.0f);
+                                    }
+                                }
+                            }
+
+                            //CHECK 3 PIXELS ABOVE TARGET PIXEL
+                            //ONLY GIVE HALF OCCLUSION FOR THIS
+                            for (int j = -1; j <= 1; j++)
+                            {
+                                if (y >= 3)
+                                {
+                                    if (Pos.GetPixel(x + j, y - 3).R > 0)
+                                    {
+                                        Occlusion -= (1.0f / 18.0f);
                                     }
                                 }
                             }
@@ -189,17 +199,17 @@ namespace AmbientOcclusion
 
                         //YOU ARE ANY PIXEL IN THE POSITION BUFFER THAT IS OCCUPIED
                         //CHECK DIRECTLY BELOW YOURSELF FOR OCCLUSION
-                        if (Pos.GetPixel(x, y).R > 0)
-                        {
-                            for (int j = 1; j < 3; j++)
-                            {
-                                Color PPBuffer = Pos.GetPixel(x, y + j);
-                                if (PPBuffer == Color.FromArgb(255, 0, 0, 0))
-                                {
-                                    Occlusion -= (1.0f / 9.0f) * 1;
-                                }
-                            }
-                        }
+                        //if (Pos.GetPixel(x, y).R > 0)
+                        //{
+                        //    for (int j = 1; j < 3; j++)
+                        //    {
+                        //        Color PPBuffer = Pos.GetPixel(x, y + j);
+                        //        if (PPBuffer == Color.FromArgb(255, 0, 0, 0))
+                        //        {
+                        //            Occlusion -= (1.0f / 9.0f) * (1);
+                        //        }
+                        //    }
+                        //}
 
                         int O = 255;
                         if (Occlusion != 1)

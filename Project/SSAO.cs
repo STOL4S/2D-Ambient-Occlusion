@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Eventing.Reader;
 using System.Drawing;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -12,6 +13,9 @@ namespace AmbientOcclusion
     public static class SSAO
     {
         public static float STRENGTH = 1.0f;
+
+        public static bool SELF_SHADOW = false;
+        public static bool SELF_SHADOW_BACKGROUND = false;
 
         public static Bitmap Generate(Bitmap BackBuffer, Sprite[] SpriteArray)
         {
@@ -29,10 +33,14 @@ namespace AmbientOcclusion
 
                 for (int i = 0; i < SpriteArray.Length; i++) 
                 {
-                    RGB += 0x00080000;
+                    RGB = 0xFF040000;
+                    RGB += 0x00080000 * i;
+
                     CC = Color.FromArgb((int)RGB);
 
-                    for (int y = 0; y < SpriteArray[i].Texture.Height; y++)
+                    int Inv = 0;
+
+                    for (int y = SpriteArray[i].Texture.Height - 1; y > 0; y--)
                     {
                         for (int x = 0; x < SpriteArray[i].Texture.Width; x++)
                         {
@@ -42,6 +50,14 @@ namespace AmbientOcclusion
                                 Pos.SetPixel(SpriteArray[i].Position.X + x,
                                     SpriteArray[i].Position.Y + y, CC);
                             }
+                        }
+
+                        Inv++;
+                        if (Inv >= 0)
+                        {
+                            RGB += 0x00000001;
+                            CC = Color.FromArgb((int)RGB);
+                            Inv = 0;
                         }
                     }
                 }
@@ -112,7 +128,7 @@ namespace AmbientOcclusion
                                         {
                                             if (PBuffer.R < PPBuffer.R)
                                             {
-                                                Occlusion -= (1.0f - 9.0f) * Dist;
+                                                Occlusion -= (1.0f - 9.0f) * Dist * 0.95f;
                                             }
                                         }
                                     }
@@ -133,8 +149,11 @@ namespace AmbientOcclusion
                             if (O < 0)
                                 O = 0;
 
-                            AO.SetPixel(SpriteArray[i].Position.X + x,
-                                SpriteArray[i].Position.Y + y, Color.FromArgb(O, O, O));
+                            if (Occlusion != 1.0f)
+                            {
+                                AO.SetPixel(SpriteArray[i].Position.X + x,
+                                    SpriteArray[i].Position.Y + y, Color.FromArgb(O, O, O));
+                            }
                         }
                     }
                 }
@@ -145,6 +164,67 @@ namespace AmbientOcclusion
                 {
                     for (int x = 1; x < Pos.Width - 1; x++) 
                     {
+                        float Occlusion = 1.0f;
+
+                        if (SELF_SHADOW)
+                        {
+                            if (SELF_SHADOW_BACKGROUND)
+                            {
+                                //SELF SHADOW
+                                Vector3 AvgColor = new Vector3(0, 0, 0);
+
+                                for (int j = -1; j <= 1; j++)
+                                {
+                                    for (int k = -1; k <= 1; k++)
+                                    {
+                                        Color C = BackBuffer.GetPixel(x + j, y + k);
+                                        AvgColor += new Vector3(C.R, C.G, C.B);
+                                    }
+                                }
+
+                                AvgColor /= 9;
+
+                                Color Current = BackBuffer.GetPixel(x, y);
+
+                                float Delta = (Current.R - AvgColor.X)
+                                   + (Current.G - AvgColor.Y) + (Current.B - AvgColor.Z);
+
+                                if (Delta >= 8)
+                                {
+                                    Occlusion -= (1.0f / Delta);
+                                }
+                            }
+                            else
+                            {
+                                if (Pos.GetPixel(x, y).R > 0)
+                                {
+                                    //SELF SHADOW
+                                    Vector3 AvgColor = new Vector3(0, 0, 0);
+
+                                    for (int j = -1; j <= 1; j++)
+                                    {
+                                        for (int k = -1; k <= 1; k++)
+                                        {
+                                            Color C = BackBuffer.GetPixel(x + j, y + k);
+                                            AvgColor += new Vector3(C.R, C.G, C.B);
+                                        }
+                                    }
+
+                                    AvgColor /= 9;
+
+                                    Color Current = BackBuffer.GetPixel(x, y);
+
+                                    float Delta = (Current.R - AvgColor.X)
+                                       + (Current.G - AvgColor.Y) + (Current.B - AvgColor.Z);
+
+                                    if (Delta >= 8)
+                                    {
+                                        Occlusion -= (1.0f / Delta);
+                                    }
+                                }
+                            }
+                        }
+
                         //IF YOU ARE AN ALPHA PIXEL (BACKGROUND)
                         //CHECK SURROUNDING PIXELS IN THE FOLLOWING PATTERN:
                         //*** SCAN THIS ROW
@@ -152,8 +232,6 @@ namespace AmbientOcclusion
                         //XXX DO NOT SCAN THIS ROW!
                         //ONLY CHECK NEXT TO THE PIXEL AND ABOVE IT TO PREVENT
                         //AMBIENT OCCLUSION FROM BEING GENERATED ON TOP OF SURFACES
-
-                        float Occlusion = 1.0f;
                         if (Pos.GetPixel(x, y).R == 0)
                         {
                             for (int j = -1; j <= 0; j++)
@@ -164,7 +242,8 @@ namespace AmbientOcclusion
                                     //IF THE PIXEL IS OCCUPIED
                                     if (Pos.GetPixel(x, y + j).R > 0)
                                     {
-                                        Occlusion -= (1.0f / 9.0f);
+                                        float B = Pos.GetPixel(x, y + j).B + 1;
+                                        Occlusion -= ((1.0f / B) / 2.0f);
                                     }
                                 }
                             }
@@ -177,7 +256,8 @@ namespace AmbientOcclusion
                                 {
                                     if (Pos.GetPixel(x + j, y - 2).R > 0)
                                     {
-                                        Occlusion -= (1.0f / 14.0f);
+                                        float B = Pos.GetPixel(x, y + j).B + 1;
+                                        Occlusion -= ((1.0f / B) / 16.0f);
                                     }
                                 }
                             }
@@ -190,7 +270,8 @@ namespace AmbientOcclusion
                                 {
                                     if (Pos.GetPixel(x + j, y - 3).R > 0)
                                     {
-                                        Occlusion -= (1.0f / 18.0f);
+                                        float B = Pos.GetPixel(x, y + j).B + 1;
+                                        Occlusion -= ((1.0f / B) / 25.0f);
                                     }
                                 }
                             }
@@ -211,6 +292,8 @@ namespace AmbientOcclusion
                         //    }
                         //}
 
+
+
                         int O = 255;
                         if (Occlusion != 1)
                         {
@@ -223,7 +306,7 @@ namespace AmbientOcclusion
 
                             if (AO.GetPixel(x, y).R < O)
                             {
-                                O = O - (int)(AO.GetPixel(x, y).R / 1.5f);
+                                O = (O - (int)(AO.GetPixel(x, y).R / 1.5f));
                             }
 
                             AO.SetPixel(x, y, Color.FromArgb(O, O, O));

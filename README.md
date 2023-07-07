@@ -13,6 +13,11 @@ some adjustment may have to be made to get it to work properly.
 ### Generated Occlusion Map
 ![AO](https://github.com/STOL4S/2D-Ambient-Occlusion/assets/138336394/5a83ea8b-66b4-4ee5-9b5c-a41c489fc06b)
 
+### No Shading
+![Buffer](https://github.com/STOL4S/2D-Ambient-Occlusion/assets/138336394/829fd638-2e7b-41a9-b570-c24dd53f09dc)
+### Rendered Scene
+![GeneratedComposite](https://github.com/STOL4S/2D-Ambient-Occlusion/assets/138336394/0ef72c2d-96e2-47f2-9428-ff8dc5d4f696)
+
 When using this shader, self-shadowing can be enabled/disabled when calling the function to generate the ambient occlusion.
 Regular shadowing tends to give darker shadows under the object itself, while leaving most of the shading of the object itself
 alone. Self-shadowing gives a lighter shadow on the ground, but also shadow details in areas where edges are detected in the image.

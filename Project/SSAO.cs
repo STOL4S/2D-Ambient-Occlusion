@@ -6,6 +6,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 using System.Xml.Linq;
 
 namespace AmbientOcclusion
@@ -14,7 +15,7 @@ namespace AmbientOcclusion
     {
         public static float STRENGTH = 1.0f;
 
-        public static bool SELF_SHADOW = false;
+        public static bool SELF_SHADOW = true;
         public static bool SELF_SHADOW_BACKGROUND = false;
 
         public static Bitmap Generate(Bitmap BackBuffer, Sprite[] SpriteArray)
@@ -128,7 +129,7 @@ namespace AmbientOcclusion
                                         {
                                             if (PBuffer.R < PPBuffer.R)
                                             {
-                                                Occlusion -= (1.0f - 9.0f) * Dist * 0.95f;
+                                                Occlusion -= (1.0f - 9.0f) * Dist * 0.75f;
                                             }
                                         }
                                     }
@@ -166,65 +167,7 @@ namespace AmbientOcclusion
                     {
                         float Occlusion = 1.0f;
 
-                        if (SELF_SHADOW)
-                        {
-                            if (SELF_SHADOW_BACKGROUND)
-                            {
-                                //SELF SHADOW
-                                Vector3 AvgColor = new Vector3(0, 0, 0);
-
-                                for (int j = -1; j <= 1; j++)
-                                {
-                                    for (int k = -1; k <= 1; k++)
-                                    {
-                                        Color C = BackBuffer.GetPixel(x + j, y + k);
-                                        AvgColor += new Vector3(C.R, C.G, C.B);
-                                    }
-                                }
-
-                                AvgColor /= 9;
-
-                                Color Current = BackBuffer.GetPixel(x, y);
-
-                                float Delta = (Current.R - AvgColor.X)
-                                   + (Current.G - AvgColor.Y) + (Current.B - AvgColor.Z);
-
-                                if (Delta >= 8)
-                                {
-                                    Occlusion -= (1.0f / Delta);
-                                }
-                            }
-                            else
-                            {
-                                if (Pos.GetPixel(x, y).R > 0)
-                                {
-                                    //SELF SHADOW
-                                    Vector3 AvgColor = new Vector3(0, 0, 0);
-
-                                    for (int j = -1; j <= 1; j++)
-                                    {
-                                        for (int k = -1; k <= 1; k++)
-                                        {
-                                            Color C = BackBuffer.GetPixel(x + j, y + k);
-                                            AvgColor += new Vector3(C.R, C.G, C.B);
-                                        }
-                                    }
-
-                                    AvgColor /= 9;
-
-                                    Color Current = BackBuffer.GetPixel(x, y);
-
-                                    float Delta = (Current.R - AvgColor.X)
-                                       + (Current.G - AvgColor.Y) + (Current.B - AvgColor.Z);
-
-                                    if (Delta >= 8)
-                                    {
-                                        Occlusion -= (1.0f / Delta);
-                                    }
-                                }
-                            }
-                        }
-
+                        
                         //IF YOU ARE AN ALPHA PIXEL (BACKGROUND)
                         //CHECK SURROUNDING PIXELS IN THE FOLLOWING PATTERN:
                         //*** SCAN THIS ROW
@@ -243,7 +186,7 @@ namespace AmbientOcclusion
                                     if (Pos.GetPixel(x, y + j).R > 0)
                                     {
                                         float B = Pos.GetPixel(x, y + j).B + 1;
-                                        Occlusion -= ((1.0f / B) / 2.0f);
+                                        Occlusion -= ((1.0f / B) / 1.333f);
                                     }
                                 }
                             }
@@ -257,7 +200,7 @@ namespace AmbientOcclusion
                                     if (Pos.GetPixel(x + j, y - 2).R > 0)
                                     {
                                         float B = Pos.GetPixel(x, y + j).B + 1;
-                                        Occlusion -= ((1.0f / B) / 16.0f);
+                                        Occlusion -= ((1.0f / B) / 12.0f);
                                     }
                                 }
                             }
@@ -271,7 +214,7 @@ namespace AmbientOcclusion
                                     if (Pos.GetPixel(x + j, y - 3).R > 0)
                                     {
                                         float B = Pos.GetPixel(x, y + j).B + 1;
-                                        Occlusion -= ((1.0f / B) / 25.0f);
+                                        Occlusion -= ((1.0f / B) / 18.0f);
                                     }
                                 }
                             }
@@ -315,9 +258,158 @@ namespace AmbientOcclusion
                 }
             }
 
+            //COMPOSITE WITH SELF SHADOW
+            if (SELF_SHADOW)
+            {
+                Bitmap SS_AO = GenerateSelfShadow(BackBuffer, Pos);
+                Bitmap Output = new Bitmap(BackBuffer.Width, BackBuffer.Height);
+
+                for (int y = 0; y < Output.Height; y++)
+                {
+                    for (int x = 0; x < Output.Width; x++)
+                    {
+                        Color BP = AO.GetPixel(x, y);
+                        float AA = SS_AO.GetPixel(x, y).R;
+
+                        int FinalR = (int)(BP.R - AA);
+                        int FinalG = (int)(BP.G - AA);
+                        int FinalB = (int)(BP.B - AA);
+
+                        FinalR = CorrectRGBValue(FinalR);
+                        FinalG = CorrectRGBValue(FinalG);
+                        FinalB = CorrectRGBValue(FinalB);
+
+                        Color NC = Color.FromArgb(FinalR, FinalG, FinalB);
+
+                        Output.SetPixel(x, y, NC);
+                    }
+                }
+
+                Output.Save("SSAO.png");
+                AO = (Bitmap)Output.Clone();
+            }
+
             AO.Save("AO.png");
             Pos.Save("Pos.png");
 
+            return AO;
+        }
+
+        private static Bitmap GenerateSelfShadow(Bitmap BackBuffer, Bitmap PositionBuffer)
+        {
+            Bitmap AO = new Bitmap(BackBuffer.Width, BackBuffer.Height);
+
+            using (Graphics G = Graphics.FromImage(AO))
+            {
+                G.Clear(Color.Black);
+
+                for (int y = 1; y < BackBuffer.Height - 1; y++)
+                {
+                    for (int x = 1; x < BackBuffer.Width - 1; x++)
+                    {
+                        float Occlusion = 1.0f;
+                        if (SELF_SHADOW)
+                        {
+                            if (SELF_SHADOW_BACKGROUND)
+                            {
+                                //SELF SHADOW
+                                Vector3 AvgColor = new Vector3(0, 0, 0);
+
+                                for (int j = -1; j <= 1; j++)
+                                {
+                                    for (int k = -1; k <= 1; k++)
+                                    {
+                                        Color C = BackBuffer.GetPixel(x + j, y + k);
+                                        AvgColor += new Vector3(C.R, C.G, C.B);
+                                    }
+                                }
+
+                                AvgColor /= 9;
+
+                                Color Current = BackBuffer.GetPixel(x, y);
+
+                                float Delta = (Current.R - AvgColor.X)
+                                   + (Current.G - AvgColor.Y) + (Current.B - AvgColor.Z);
+
+                                if (Delta >= 8)
+                                {
+                                    Occlusion -= (1.0f / Delta);
+                                }
+
+                                int O = 255;
+                                if (Occlusion != 1)
+                                {
+                                    O = (int)(Occlusion * 255);
+
+                                    if (O > 255)
+                                        O = 255;
+                                    if (O < 0)
+                                        O = 0;
+
+                                    if (AO.GetPixel(x, y).R < O)
+                                    {
+                                        O = (O - (int)(AO.GetPixel(x, y).R / 2f));
+                                    }
+
+                                    O = 255 - O;
+                                    AO.SetPixel(x, y, Color.FromArgb(O, O, O));
+                                }
+                            }
+                            else
+                            {
+                                if (PositionBuffer.GetPixel(x, y).R > 0)
+                                {
+                                    //SELF SHADOW
+                                    Vector3 AvgColor = new Vector3(0, 0, 0);
+
+                                    for (int j = -1; j <= 1; j++)
+                                    {
+                                        for (int k = -1; k <= 1; k++)
+                                        {
+                                            Color C = BackBuffer.GetPixel(x + j, y + k);
+                                            AvgColor += new Vector3(C.R, C.G, C.B);
+                                        }
+                                    }
+
+                                    AvgColor /= 9;
+
+                                    Color Current = BackBuffer.GetPixel(x, y);
+
+                                    float Delta = (Current.R - AvgColor.X)
+                                       + (Current.G - AvgColor.Y) + (Current.B - AvgColor.Z);
+
+                                    if (Delta >= 8)
+                                    {
+                                        Occlusion -= (1.0f / Delta);
+                                    }
+                                }
+
+                                int O = 255;
+                                if (Occlusion != 1)
+                                {
+                                    O = (int)(Occlusion * 255);
+
+                                    if (O > 255)
+                                        O = 255;
+                                    if (O < 0)
+                                        O = 0;
+
+                                    if (AO.GetPixel(x, y).R < O)
+                                    {
+                                        O = (O - (int)(AO.GetPixel(x, y).R / 1.5f));
+                                    }
+
+                                    //INVERT ALL O VALUES FOR SUBTRACTION
+                                    //TRUST ME
+                                    O = 255 - O;
+                                    AO.SetPixel(x, y, Color.FromArgb(O, O, O));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            AO.Save("Self.png");
             return AO;
         }
 

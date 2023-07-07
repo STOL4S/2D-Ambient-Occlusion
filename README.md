@@ -28,6 +28,7 @@ A position buffer is then calculated by ordering the sprites in drawing order an
 colors, while sprites in the front are lighter colors. Here is an example:
 
 ![Pos](https://github.com/STOL4S/2D-Ambient-Occlusion/assets/138336394/4821d66d-a552-41cf-9440-45eaa45e2fed)
+![DepthBuffer](https://github.com/STOL4S/2D-Ambient-Occlusion/assets/138336394/79c5a2fd-cae9-4ace-b033-278f6bf125d7)
 
 From there, the rest of the shader is very similar to the 3D version of this shader. Check surrounding pixels, get the distance
 between you and the neighboring object, and draw shadow based off occlusion amount. After checking for all shadows between sprites,

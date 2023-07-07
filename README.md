@@ -19,7 +19,7 @@ but will soon be implmented in HLSL for use in DirectX/MonoGame.
 
 ### No Shading
 ![Buffer](https://github.com/STOL4S/2D-Ambient-Occlusion/assets/138336394/e9b45384-9187-4371-ad0e-39b2e8ac2e66)
-### Ambient Occlusion
+### Ambient Occlusion (Self Shadow)
 ![AO_SS](https://github.com/STOL4S/2D-Ambient-Occlusion/assets/138336394/f3c3f7aa-b776-4103-aa9f-664c593cb3d4)
 ### Rendered Scene
 ![RenderedScene](https://github.com/STOL4S/2D-Ambient-Occlusion/assets/138336394/ca876fdb-199c-4b48-82aa-3336622afd5d)

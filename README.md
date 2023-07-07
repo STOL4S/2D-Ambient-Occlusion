@@ -19,10 +19,10 @@ but will soon be implmented in HLSL for use in DirectX/MonoGame.
 
 ### No Shading
 ![Buffer](https://github.com/STOL4S/2D-Ambient-Occlusion/assets/138336394/5059ff88-9704-44ce-9af5-180287ab2131)
-### Ambient Occlusion (Self-Shadow Enabled)
-![AOO](https://github.com/STOL4S/2D-Ambient-Occlusion/assets/138336394/2da0575e-5f42-475a-a628-a49173370e56)
+### Ambient Occlusion
+![AOO2](https://github.com/STOL4S/2D-Ambient-Occlusion/assets/138336394/32343593-1e4c-46eb-b051-450f6ad3155a)
 ### Rendered Scene
-![GeneratedComposite](https://github.com/STOL4S/2D-Ambient-Occlusion/assets/138336394/6f768084-a54e-4ad6-9943-6ed8e567f200)
+![Buffer](https://github.com/STOL4S/2D-Ambient-Occlusion/assets/138336394/77687c44-224c-4761-b827-714d636b20fd)
 
 ## How Does it Work?
 The function starts with passing a Bitmap BackBuffer and an array of sprites to be drawn to the SSAO function.

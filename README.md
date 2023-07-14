@@ -1,13 +1,15 @@
 # 2D Ambient Occlusion (Soft Shadowing)
-This repository contains a C# class that is capable of generating
+This repository contains a C# class, and an HLSL file, that are capable of generating
 ambient occlusion shadows in a 2D scene. This algorithm works by
 generating a 3D position buffer from the 2D scene and then
 calculating soft shadows using this information. If self-shadowing
 is enabled, then another pass is done and each sprite is scanned
 individually and checked for occlusion on itself.
 
-Currently this is a C# class and the shader works using Bitmap objects,
-but will soon be implmented in HLSL for use in DirectX/MonoGame.
+This was originally only a C# shader, but now is available as an HLSL shader
+in the AOHLSL folder. This shader was intended for use in MonoGame, but could
+be used in any DirectX project. The original C# function is still available
+and could potentially be used in other projects involving software rendering only.
 
 ## Examples
 ### No Shading
